@@ -1,0 +1,1 @@
+INSERT INTO customer(id, created_by, created_date, updated_by, updated_date, birth_date, email, first_name, gender, last_name, mobile_number) VALUES  (1,'SYSTEM','1990-01-01 00:00:00','SYSTEM','1990-01-01 00:00:00','1994-01-04 00:00:00','dimas@test.com','dimas','male','harry','+6281234567890')

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+	<title th:text="#{label.title}"></title>
+	
+	<link th:href="@{/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+	<link th:href="@{/jquery-validation-engine/css/validationEngine.jquery.css}" rel="stylesheet">
+</head>
+
+<body>
+	<div class="container" style="padding-top: 50px;">
+		<div class="row justify-content-md-center">
+			<div class="col-6">
+				<div class="card">
+					<h5 class="card-header" th:text="#{label.login}"></h5>
+					<div class="card-body" id="form-login">
+						<form id="formLogin" method="post">
+							<div class="form-group">
+								<input type="text" class="form-control validate[required,custom[mobileNumberID]]" id="mobileNumber" placeholder="Mobile Number">
+							</div>
+							<div class="form-group">
+								<input type="password" class="form-control validate[required]" id="password" placeholder="Password">
+							</div>
+							<button type="submit" id="login-button" class="btn btn-primary btn-block" th:text="#{label.login}"></button>
+						</form>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script th:src="@{/jquery/dist/jquery.min.js}"></script>
+	<script th:src="@{/bootstrap/dist/js/bootstrap.min.js}"></script>
+	<script th:src="@{/jquery-validation-engine/js/jquery.validationEngine.min.js}"></script>
+	<script th:src="@{/jquery-validation-engine/js/langs/jquery.validationEngine-en.js}"></script>
+	<script th:src="@{/jquery-validation-engine/js/contrib/other-validations.js}"></script>
+	
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#formLogin").validationEngine();
+			$("#formLogin").submit(function (event) {
+				if($("#formLogin").validationEngine('validate')){
+			        event.preventDefault();
+				}
+		    });
+		});
+	</script>
+</body>
+</html>

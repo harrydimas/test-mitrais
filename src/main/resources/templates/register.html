@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html dir="ltr" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+	<title th:text="#{label.title}"></title>
+	
+	<link th:href="@{/bootstrap/dist/css/bootstrap.min.css}" rel="stylesheet">
+	<link th:href="@{/jquery-validation-engine/css/validationEngine.jquery.css}" rel="stylesheet">
+</head>
+
+<body>
+	<div class="container" style="padding-top: 50px;">
+		<div class="row justify-content-md-center">
+			<div class="col-6">
+				<div class="card">
+					<h5 class="card-header" th:text="#{label.registration}"></h5>
+					<div class="card-body" id="form-input">
+						<form id="formRegister" th:object="${customer}" method="post">
+							<div id="error-alert" class="alert alert-danger alert-dismissible fade show" role="alert" style="display: none;">
+								<ul style="margin-bottom: 0;" id="error-list"></ul>
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control validate[required,custom[mobileNumberID]]" id="mobileNumber" placeholder="Mobile Number" th:field="*{mobileNumber}">
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control validate[required]" id="firstName" placeholder="First Name" th:field="*{firstName}">
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control validate[required]" id="lastName" placeholder="Last Name" th:field="*{lastName}">
+							</div>
+							<div class="form-group">
+								<label th:text="#{label.birthdate}"></label><br />
+								<select id="month" class="custom-select col-3" th:field="*{month}">
+									<option value="" th:text="#{label.month}"></option>
+									<option th:each="m : ${months}" th:if="${m != ''}" th:value="${{m}}" th:text="${m}" />
+								</select>
+								<select id="date" class="custom-select col-2" th:field="*{date}">
+									<option value="" th:text="#{label.date}"></option>
+									<option th:each="d : ${dates}" th:value="${{d}}" th:text="${d}" />
+								</select>
+								<select id="year" class="custom-select col-2" th:field="*{year}">
+									<option value="" th:text="#{label.year}"></option>
+									<option th:each="y : ${years}" th:value="${{y}}" th:text="${y}" />
+								</select>
+							</div>							
+							<div class="form-group form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="gender" id="gender1" value="male" th:field="*{gender}">
+								<label class="form-check-label" for="gender1" th:text="#{label.male}"></label>
+							</div>
+							<div class="form-group form-check form-check-inline">
+								<input class="form-check-input" type="radio" name="gender" id="gender2" value="female" th:field="*{gender}">
+								<label class="form-check-label" for="gender2" th:text="#{label.female}"></label>
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control validate[required,custom[email]]" id="email" placeholder="Email" th:field="*{email}">
+							</div>
+							<button type="submit" id="register-button" class="btn btn-primary btn-block" th:text="#{label.register}"></button>
+						</form>
+						
+					</div>
+					<div class="card-body" id="login-button" style="display: none;">
+						<a href="/login" type="button" class="btn btn-primary btn-block" th:text="#{label.login}"></a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script th:src="@{/jquery/dist/jquery.min.js}"></script>
+	<script th:src="@{/bootstrap/dist/js/bootstrap.min.js}"></script>
+	<script th:src="@{/jquery-validation-engine/js/jquery.validationEngine.min.js}"></script>
+	<script th:src="@{/jquery-validation-engine/js/langs/jquery.validationEngine-en.js}"></script>
+	<script th:src="@{/jquery-validation-engine/js/contrib/other-validations.js}"></script>
+	
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#formRegister").validationEngine();
+			$("#formRegister").submit(function (event) {
+				if($("#formRegister").validationEngine('validate')){
+			        event.preventDefault();
+			        submitForm();
+				}
+		    });
+		});
+		
+		
+		function submitForm() {
+
+			var customer = {};
+			customer["mobileNumber"] = $("#mobileNumber").val();
+			customer["firstName"] = $("#firstName").val();
+			customer["lastName"] = $("#lastName").val();
+			customer["month"] = $("#month").val();
+			customer["date"] = $("#date").val();
+			customer["year"] = $("#year").val();
+			customer["gender"] = $("input[name='gender']").val();
+			customer["email"] = $("#email").val();
+
+			disabledForm(true);
+
+			$.ajax({
+				type : "POST",
+				contentType : "application/json",
+				url : "/register-customer",
+				data : JSON.stringify(customer),
+				cache : false,
+				timeout : 600000,
+				success : function(data) {
+					$('#error-alert').hide();
+					console.log("SUCCESS : ", data);
+					
+					$('#mobileNumber').val("");
+					$('#firstName').val("");
+					$('#lastName').val("");
+					$('#month').val("");
+					$('#date').val("");
+					$('#year').val("");
+					$("input[name='gender']").prop('checked',false);
+					$('#email').val("");
+					
+					$('#login-button').show();
+				},
+				error : function(e) {
+					console.log("ERROR : ", e);
+					
+					var errors = "";
+					$.each(e.responseJSON, function(i,v){
+						errors += '<li>' + v + '</li>';
+					});
+					if(errors != "") {
+						$('#error-list').html(errors);
+						$('#error-alert').show();
+					}
+					
+					disabledForm(false);
+					$('#login-button').hide();
+				}
+			});
+		}
+
+		function disabledForm(isDisabled) {
+			$('#mobileNumber').prop('disabled', isDisabled);
+			$('#firstName').prop('disabled', isDisabled);
+			$('#lastName').prop('disabled', isDisabled);
+			$('#month').prop('disabled', isDisabled);
+			$('#date').prop('disabled', isDisabled);
+			$('#year').prop('disabled', isDisabled);
+			$('#gender1').prop('disabled', isDisabled);
+			$('#gender2').prop('disabled', isDisabled);
+			$('#email').prop('disabled', isDisabled);
+			$('#register-button').prop('disabled', isDisabled);
+			if(isDisabled == true) {
+				$('#form-input').css('opacity', '0.5');
+			} else {
+				$('#form-input').removeAttr("style");
+			}
+		}
+	</script>
+</body>
+</html>
